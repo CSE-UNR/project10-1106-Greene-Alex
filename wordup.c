@@ -7,7 +7,7 @@
 #define WORD_SIZE 6
 #define GUESSES 12
 
-void takeGuess(char userGuesses[][WORD_SIZE], int currentGuess);
+void takeGuess(char userGuesses[][WORD_SIZE], int currentGuess, int internalValue);
 int guessCheck(char userGuesses[WORD_SIZE]);
 int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int currentGuess);
 void display(char userGuesses[][WORD_SIZE], int currentGuess);
@@ -18,6 +18,8 @@ int main(){
 	FILE* readFilePointer;
 	char guesses[GUESSES][WORD_SIZE];
 	int guessNumber = 0;
+	int internalGuess = 1;
+	int test = 0;
 	
 //File stuffs
 	readFilePointer = fopen(WORD_FILE, "r");
@@ -33,10 +35,10 @@ int main(){
 	fclose(readFilePointer);
 //Take user's guess and check if its legal
 	do{
-	takeGuess(guesses, guessNumber);
+	takeGuess(guesses, guessNumber, internalGuess);
 	
 //Compare each letter to the char array
-	comparison(guesses, mysteryWord, guessNumber);
+	test = comparison(guesses, mysteryWord, guessNumber);
 	
 //Display and point to the correct letters (if any).
 	display(guesses, guessNumber);
@@ -44,18 +46,22 @@ int main(){
 //Repeat until A: All letters are correct or B: All guesses have been used.
 	guessNumber++;
 	guessNumber++;
-	}while(comparison(guesses, mysteryWord, guessNumber) != 1);
+	internalGuess++;
+	}while(test == 0);
+	
+	//Current bugs:
+	//Double printing the second line?
 	
 return 0;
 }
 
-void takeGuess(char userGuesses[][WORD_SIZE], int currentGuess){
+void takeGuess(char userGuesses[][WORD_SIZE], int currentGuess, int internalValue){
 	
 	char tempGuess[WORD_SIZE];
 	
-	if(currentGuess < GUESSES){
+	if(internalValue < GUESSES/2){
 		do{
-			printf("Guess %d! Enter your guess: ", currentGuess+1);
+			printf("Guess %d! Enter your guess: ", internalValue);
 			scanf("%s", tempGuess);	
 		}while(guessCheck(tempGuess) == 1);
 		
@@ -120,7 +126,7 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int curre
 	int count = 0;
 	
 	for(int i = 0; i < WORD_SIZE; i++){
-		userGuesses[currentGuess+6][i] = ' ';
+		userGuesses[currentGuess+1][i] = ' ';
 	}
 	
 	for(int i = 0; i < WORD_SIZE; i++){
@@ -139,14 +145,15 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int curre
 			}
 			
 			else if(guessStorage[i] == theWord[j]){
-				userGuesses[currentGuess+6][i] = '^';
+				userGuesses[currentGuess+1][i] = '^';
 			}
 		}
 	}
 	
-	//ENDING NOTE: start on the problem w/ it not ending
 	if(count / WORD_SIZE == 5){
+		printf("\n===========================================\n");
 		printf("Congrats! You guessed the word in %d tries!\n", currentGuess+1);
+		printf("===========================================\n");
 		return 1;
 	}
 	
@@ -157,9 +164,7 @@ void display(char userGuesses[][WORD_SIZE], int currentGuess){
 	
 	for(int i = 0; i < currentGuess+1; i++){
 		printf("%s\n", userGuesses[i]);
-		printf("%s\n", userGuesses[i+6]);
-		printf("\n");
+		printf("%s\n\n", userGuesses[i+1]);
 		i++;
 	}
-	
 }
