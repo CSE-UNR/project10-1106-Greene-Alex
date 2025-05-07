@@ -12,7 +12,7 @@ int guessCheck(char userGuesses[WORD_SIZE]);
 int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int internalGuess, int currentGuess);
 void display(char userGuesses[][WORD_SIZE], int internalGuess);
 void lowercase(char userGuesses[][WORD_SIZE], int internalGuess);
-int noCapitalPointing(char theWord, char capitals[WORD_SIZE], int count);
+int noCapitalPointing(char theWord[WORD_SIZE], char guessStorage[WORD_SIZE], char letterTest);
 
 int main(){
 //Variables(char userGuesses[][WORD_SIZE], int internalGuess)
@@ -136,6 +136,7 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int inter
 	char guessStorage[WORD_SIZE];
 	int count = 0, counter = 0;
 	char capitals[WORD_SIZE];
+	char temp;
 	
 	
 	for(int i = 0; i < WORD_SIZE; i++){
@@ -147,13 +148,6 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int inter
 	}
 	
 	for(int i = 0; i < WORD_SIZE; i++){
-		if(guessStorage[i] == theWord[i]){
-			noCapitalPointing(theWord[i], capitals, counter);
-			counter++;
-		}
-	}
-	
-	for(int i = 0; i < WORD_SIZE; i++){
 		for(int j = 0; j < WORD_SIZE; j++){
 			
 			if(guessStorage[i] == '\0'){
@@ -161,11 +155,11 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int inter
 			
 			else if(guessStorage[i] == theWord[i]){
 				userGuesses[internalGuess][i] = guessStorage[i] - 32;
-				noCapitalPointing(theWord[i], capitals, count);
+				temp = theWord[i];
 				count++;
 			}
 			
-			else if(guessStorage[i] == theWord[j] && guessStorage[i] != capitals[j]){
+			else if(guessStorage[i] == theWord[j] && noCapitalPointing(theWord, guessStorage, guessStorage[i]) != 1){
 				userGuesses[internalGuess+1][i] = '^';
 			}
 		}
@@ -178,9 +172,13 @@ int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int inter
 return 0;
 }
 
-int noCapitalPointing(char theWord, char capitals[WORD_SIZE], int count){
+int noCapitalPointing(char theWord[WORD_SIZE], char guessStorage[WORD_SIZE], char letterTest){
 
-		capitals[count] == theWord;
+	for(int i = 0; i < WORD_SIZE; i++){
+		if(guessStorage[i] == theWord[i] == letterTest){
+		return 1;
+		}
+	}
 return 0;
 }
 
