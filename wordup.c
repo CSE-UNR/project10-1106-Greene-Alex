@@ -5,18 +5,20 @@
 
 #define WORD_FILE "mystery.txt"
 #define WORD_SIZE 6
-#define ROW_MAX 12
+#define NUM_ROWS 12
 
-void takeGuess(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess, int currentGuess);
+void takeGuess(char userGuesses[][WORD_SIZE], int internalGuess, int currentGuess);
 int guessCheck(char userGuesses[WORD_SIZE]);
-int comparison(char userGuesses[WORD_SIZE][ROW_MAX], char theWord[WORD_SIZE], int internalGuess, int currentGuess);
-void display(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess);
+int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int internalGuess, int currentGuess);
+void display(char userGuesses[][WORD_SIZE], int internalGuess);
+void lowercase(char userGuesses[][WORD_SIZE], int internalGuess);
+int noCapitalPointing(char theWord, char capitals[WORD_SIZE], int count);
 
 int main(){
 //Variables(char userGuesses[][WORD_SIZE], int internalGuess)
 	char mysteryWord[WORD_SIZE];
 	FILE* readFilePointer;
-	char guesses[WORD_SIZE][ROW_MAX];
+	char guesses[NUM_ROWS][WORD_SIZE];
 	int internalValue = 0;
 	int guessNumber = 1;
 	int test = 0;
@@ -48,16 +50,28 @@ int main(){
 	internalValue++;
 	internalValue++;
 	guessNumber++;
-	}while(test == 0 && guessNumber < 6);
+	}while(test == 0 && guessNumber < 7);
+	
+	if(test == 1){
+		printf("\n===========================================\n");
+		printf("Congrats! You guessed the word in %d tries!\n", guessNumber - 1);
+		printf("===========================================\n");
+	}
+	
+	else if(test == 0 && guessNumber == 6){
+		printf("\n===========================================\n");
+		printf("You lost. The word was %s\n", mysteryWord);
+		printf("===========================================\n");
+	}
 	
 return 0;
 }
 
-void takeGuess(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess, int currentGuess){
+void takeGuess(char userGuesses[][WORD_SIZE], int internalGuess, int currentGuess){
 	
 	char tempGuess[WORD_SIZE];
 	
-	if(currentGuess < ROW_MAX/2){
+	if(currentGuess < NUM_ROWS/2){
 		do{
 			printf("Guess %d! Enter your guess: ", currentGuess);
 			scanf("%s", tempGuess);	
@@ -67,12 +81,7 @@ void takeGuess(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess, int curr
 			userGuesses[internalGuess][i] = tempGuess[i];
 		}
 		
-		for(int i = 0; i < WORD_SIZE; i++){
-			//Changes letters to lowercase
-			if(userGuesses[internalGuess][i] >= 65 && userGuesses[internalGuess][i] <= 90){
-			userGuesses[internalGuess][i] += 32;
-			}
-		}
+		lowercase(userGuesses, internalGuess);
 		
 	}
 	
@@ -86,12 +95,7 @@ void takeGuess(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess, int curr
 			userGuesses[internalGuess][i] = tempGuess[i];
 		}
 		
-		for(int i = 0; i < WORD_SIZE; i++){
-			//Changes letters to lowercase
-			if(userGuesses[internalGuess][i] >= 65 && userGuesses[internalGuess][i] <= 90){
-			userGuesses[internalGuess][i] += 32;
-			}
-		}
+		lowercase(userGuesses, internalGuess);
 	}
 	
 }
@@ -118,10 +122,21 @@ int guessCheck(char userGuesses[WORD_SIZE]){
 return 0;	
 }
 
-int comparison(char userGuesses[WORD_SIZE][ROW_MAX], char theWord[WORD_SIZE], int internalGuess, int currentGuess){
+void lowercase(char userGuesses[][WORD_SIZE], int internalGuess){
+	
+	for(int i = 0; i < WORD_SIZE; i++){
+		if(userGuesses[internalGuess][i] >= 65 && userGuesses[internalGuess][i] <= 90){
+		userGuesses[internalGuess][i] += 32;
+		}
+	}
+}
+
+int comparison(char userGuesses[][WORD_SIZE], char theWord[WORD_SIZE], int internalGuess, int currentGuess){
 	
 	char guessStorage[WORD_SIZE];
-	int count = 0;
+	int count = 0, counter = 0;
+	char capitals[WORD_SIZE];
+	
 	
 	for(int i = 0; i < WORD_SIZE; i++){
 		userGuesses[internalGuess+1][i] = ' ';
@@ -132,6 +147,13 @@ int comparison(char userGuesses[WORD_SIZE][ROW_MAX], char theWord[WORD_SIZE], in
 	}
 	
 	for(int i = 0; i < WORD_SIZE; i++){
+		if(guessStorage[i] == theWord[i]){
+			noCapitalPointing(theWord[i], capitals, counter);
+			counter++;
+		}
+	}
+	
+	for(int i = 0; i < WORD_SIZE; i++){
 		for(int j = 0; j < WORD_SIZE; j++){
 			
 			if(guessStorage[i] == '\0'){
@@ -139,31 +161,37 @@ int comparison(char userGuesses[WORD_SIZE][ROW_MAX], char theWord[WORD_SIZE], in
 			
 			else if(guessStorage[i] == theWord[i]){
 				userGuesses[internalGuess][i] = guessStorage[i] - 32;
+				noCapitalPointing(theWord[i], capitals, count);
 				count++;
 			}
 			
-			else if(guessStorage[i] == theWord[j]){
+			else if(guessStorage[i] == theWord[j] && guessStorage[i] != capitals[j]){
 				userGuesses[internalGuess+1][i] = '^';
 			}
 		}
 	}
-	printf("=%s=\n\n", userGuesses[7]);
 	
 	if(count / WORD_SIZE == 5){
-		printf("\n===========================================\n");
-		printf("Congrats! You guessed the word in %d tries!\n", currentGuess);
-		printf("===========================================\n");
 		return 1;
 	}
 	
 return 0;
 }
 
-void display(char userGuesses[WORD_SIZE][ROW_MAX], int internalGuess){
+int noCapitalPointing(char theWord, char capitals[WORD_SIZE], int count){
+
+		capitals[count] == theWord;
+return 0;
+}
+
+void display(char userGuesses[][WORD_SIZE], int internalGuess){
 	
 	for(int i = 0; i < internalGuess+1; i++){
 		printf("%s\n", userGuesses[i]);
-		printf("%s\n\n", userGuesses[i+1]);
+		for(int j = 0; j < WORD_SIZE; j++){
+			printf("%c", userGuesses[i+1][j]);
+		}
+		printf("\n\n");
 		i++;
 	}
 }
